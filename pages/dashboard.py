@@ -62,9 +62,12 @@ def build_leaderboard(df_sessions, mode):
     if df.empty:
         return pd.DataFrame(columns=["Rang", "Joueur", "Score", "Temps (s)", "Sessions"])
 
+    df["nb_correct"] = pd.to_numeric(df["nb_correct"], errors="coerce").fillna(0).astype(int)
+    df["temps_total"] = pd.to_numeric(df["temps_total"], errors="coerce")
     df = df.sort_values(
         ["profile_id", "nb_correct", "temps_total"],
         ascending=[True, False, True],
+        na_position="last",
     )
     session_counts = df.groupby("profile_id").size()
     best = df.groupby("profile_id", as_index=False).first()
@@ -91,23 +94,31 @@ def afficher_leaderboard(df_sessions, mode, show_commune=False):
         return
     affichage = leaderboard.copy()
     affichage["Temps"] = affichage["Temps (s)"].apply(format_temps)
+    for col in ("Rang", "Score", "Sessions"):
+        affichage[col] = pd.to_numeric(affichage[col], errors="coerce").fillna(0).astype(int)
     colonnes = ["Rang", "Joueur", "Score", "Temps", "Sessions"]
     if show_commune:
         affichage = affichage.rename(columns={"nom_commune": "Commune"})
         colonnes = ["Rang", "Joueur", "Commune", "Score", "Temps", "Sessions"]
     affichage = affichage[colonnes]
+    format_entiers = {"Rang": "{:.0f}", "Score": "{:.0f}", "Sessions": "{:.0f}"}
     if len(affichage)>2:
         affichage = (affichage.style.apply(color_background_gold_column, subset=pd.IndexSlice[affichage.index[0], affichage.columns[:]])
         .apply(color_background_silver_column, subset=pd.IndexSlice[affichage.index[1], affichage.columns[:]])
         .apply(color_background_bronze_column, subset=pd.IndexSlice[affichage.index[2], affichage.columns[:]])
-        .apply(bold_text_column, subset=pd.IndexSlice[affichage.index[0:3], affichage.columns[:]]))
+        .apply(bold_text_column, subset=pd.IndexSlice[affichage.index[0:3], affichage.columns[:]])
+        .format(format_entiers))
     elif len(affichage)>1:
         affichage = (affichage.style.apply(color_background_silver_column, subset=pd.IndexSlice[affichage.index[1], affichage.columns[:]])
         .apply(color_background_gold_column, subset=pd.IndexSlice[affichage.index[0], affichage.columns[:]])
-        .apply(bold_text_column, subset=pd.IndexSlice[affichage.index[0:3], affichage.columns[:]]))
+        .apply(bold_text_column, subset=pd.IndexSlice[affichage.index[0:3], affichage.columns[:]])
+        .format(format_entiers))
     elif len(affichage)>0:
         affichage = (affichage.style.apply(color_background_gold_column, subset=pd.IndexSlice[affichage.index[0], affichage.columns[:]])
-        .apply(bold_text_column, subset=pd.IndexSlice[affichage.index[0:3], affichage.columns[:]]))
+        .apply(bold_text_column, subset=pd.IndexSlice[affichage.index[0:3], affichage.columns[:]])
+        .format(format_entiers))
+    else:
+        affichage = affichage.style.format(format_entiers)
     st.dataframe(
         affichage,
         hide_index=True,
