@@ -4,6 +4,7 @@ import matplotlib
 import pandas as pd
 import plotly.express as px
 import math
+
 from data_loader import load_all_data
 # --- Variables globales ---
 MOIS = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"]
@@ -18,53 +19,29 @@ def style_reussite_table(df):
 def sous_titre(text):
     return st.markdown(f"<h3 style='text-align: center; font-family: {font_family};'>{text}</h3>", unsafe_allow_html=True)
 
+def sous_titre_small(text):
+    return st.markdown(f"<h4 style='text-align: center; font-family: {font_family};'>{text}</h4>", unsafe_allow_html=True)
+
 # --- Titre et introduction ---
 st.title("🌿 Tableau de bord Fari'i Durable")
 
 # --- Choix Année/Date ---
-with st.container(border=True):
-    mode = st.segmented_control(
-        "Période",
-        ["Années", "Dates"],
-        default="Années",
-        key="s_toggle_dates",
-        label_visibility="collapsed",
-    )
-
-    col_date1, col_date2 = st.columns(2)
-    annee_courante = date.today().year
-    annees = list(range(2026, annee_courante + 1))
-
-    with col_date1:
-        if mode == "Années":
-            annee_debut = st.selectbox("Année début", annees)
-            d_debut = date(annee_debut, 1, 1)
-        else:
-            d_debut = st.date_input("Date début", value=date(annee_courante, 1, 1))
-
-    with col_date2:
-        if mode == "Années":
-            annee_fin = st.selectbox("Année fin", annees)
-            d_fin = date(annee_fin, 12, 31)
-        else:
-            d_fin = st.date_input("Date fin", value=date.today())
-
 # --- Récupération des tables ---
 df_profile, df_score_session, df_reponse_question, df_commune, df_question = load_all_data(
     st.session_state.use_test_data
 )
 # Filtrages
 df_profile = df_profile[
-    (df_profile["created_at"].dt.date >= d_debut)
-    & (df_profile["created_at"].dt.date <= d_fin)
+    (df_profile["created_at"].dt.date >= st.session_state.d_debut)
+    & (df_profile["created_at"].dt.date <= st.session_state.d_fin)
 ]
 df_score_session = df_score_session[
-    (df_score_session["date"].dt.date >= d_debut)
-    & (df_score_session["date"].dt.date <= d_fin)
+    (df_score_session["date"].dt.date >= st.session_state.d_debut)
+    & (df_score_session["date"].dt.date <= st.session_state.d_fin)
 ]
 df_reponse_question = df_reponse_question[
-    (df_reponse_question["created_at"].dt.date >= d_debut)
-    & (df_reponse_question["created_at"].dt.date <= d_fin)
+    (df_reponse_question["created_at"].dt.date >= st.session_state.d_debut)
+    & (df_reponse_question["created_at"].dt.date <= st.session_state.d_fin)
 ]
 # Top des questions les mieux réussies
 df_reponse_question_top = df_reponse_question.groupby("question_id").agg({"is_correct": "mean"}).reset_index()
@@ -89,22 +66,24 @@ with tab_general:
         df_commune_count = df_profile_commune["nom_commune"].value_counts()
         df_commune_count = df_commune_count.reset_index()
         df_commune_count.columns = ["nom_commune", "count"]
-        st.subheader('Users par commune')
-        fig1 = px.pie(df_commune_count, names="nom_commune", values="count", hole=0.35)
-        st.plotly_chart(fig1)
-        # Type de sessions
-        df_type_session = df_score_session["type"].value_counts()
-        df_type_session = df_type_session.reset_index()
-        df_type_session.columns = ["type", "count"]
-        df_type_session.loc[df_type_session["type"] == "OBJET", "type"] = "Objet"
-        df_type_session.loc[df_type_session["type"] == "QUESTION", "type"] = "Quiz"
-        st.subheader('Type de sessions')
-        fig2 = px.pie(df_type_session, names="type", values="count", hole=0.35)
-        st.plotly_chart(fig2)
+        with st.container(border=True):
+            sous_titre('Users par commune')
+            fig1 = px.pie(df_commune_count, names="nom_commune", values="count", hole=0.35)
+            st.plotly_chart(fig1)
+            # Type de sessions
+            df_type_session = df_score_session["type"].value_counts()
+            df_type_session = df_type_session.reset_index()
+            df_type_session.columns = ["type", "count"]
+            df_type_session.loc[df_type_session["type"] == "OBJET", "type"] = "Objet"
+            df_type_session.loc[df_type_session["type"] == "QUESTION", "type"] = "Quiz"
+        with st.container(border=True):
+            sous_titre('Type de sessions')
+            fig2 = px.pie(df_type_session, names="type", values="count", hole=0.35)
+            st.plotly_chart(fig2)
         # Type Objets
         # Durée moyenne de session (sous format XXminXXs )
-        st.subheader('Type Objets')
-        st.markdown('#### Durée moyenne de session')
+        sous_titre('Type Objets')
+        sous_titre_small('Durée moyenne de session')
         df_score_objets = df_score_session[(df_score_session["type"] == "OBJET") & (df_score_session["temps_total"] > 0)]
         col_duree_pedago, col_duree_court = st.columns(2)
         with col_duree_pedago:
@@ -130,29 +109,31 @@ with tab_general:
         # Sessions total
         st.metric("Sessions total", len(df_score_session))
         # Sessions terminées
-        df_sessionterm = pd.DataFrame({
-            "fini": ["Terminées", "Non terminées"], 
-        "values": [len(df_score_session[df_score_session["a_fini"] == True]),
-        len(df_score_session[df_score_session["a_fini"] == False])
-        ]})
-        st.subheader('Sessions terminées')
-        fig = px.pie(df_sessionterm, names="fini", values="values", hole=0.35)
-        st.plotly_chart(fig)
-        # Mode de sessions        
-        df_mode_session = df_score_session["mode"].value_counts()
-        df_mode_session = df_mode_session.reset_index()
-        df_mode_session.columns = ["mode", "count"]
-        df_mode_session.loc[df_mode_session["mode"] == "SERIE_P", "mode"] = "Pédagogique"
-        df_mode_session.loc[df_mode_session["mode"] == "SERIE_C", "mode"] = "Pédagogique"
-        df_mode_session.loc[df_mode_session["mode"] == "CHRONO", "mode"] = "Chrono"
-        df_mode_session.loc[df_mode_session["mode"] == "SPRINT", "mode"] = "Sprint"
-        st.subheader('Modes de sessions')
-        fig2 = px.pie(df_mode_session, names="mode", values="count", hole=0.35)
-        st.plotly_chart(fig2)
+        with st.container(border=True):
+            df_sessionterm = pd.DataFrame({
+                "fini": ["Terminées", "Non terminées"], 
+            "values": [len(df_score_session[df_score_session["a_fini"] == True]),
+            len(df_score_session[df_score_session["a_fini"] == False])
+            ]})
+            sous_titre('Sessions terminées')
+            fig = px.pie(df_sessionterm, names="fini", values="values", hole=0.35)
+            st.plotly_chart(fig)
+        # Mode de sessions   
+        with st.container(border=True):     
+            df_mode_session = df_score_session["mode"].value_counts()
+            df_mode_session = df_mode_session.reset_index()
+            df_mode_session.columns = ["mode", "count"]
+            df_mode_session.loc[df_mode_session["mode"] == "SERIE_P", "mode"] = "Pédagogique"
+            df_mode_session.loc[df_mode_session["mode"] == "SERIE_C", "mode"] = "Pédagogique"
+            df_mode_session.loc[df_mode_session["mode"] == "CHRONO", "mode"] = "Chrono"
+            df_mode_session.loc[df_mode_session["mode"] == "SPRINT", "mode"] = "Sprint"
+            sous_titre('Modes de sessions')
+            fig2 = px.pie(df_mode_session, names="mode", values="count", hole=0.35)
+            st.plotly_chart(fig2)
         # Type Quiz
         # Durée moyenne de session
-        st.subheader('Type Quiz')
-        st.markdown('#### Durée moyenne de session')
+        sous_titre('Type Quiz')
+        sous_titre_small('Durée moyenne de session')
         df_score_objets = df_score_session[(df_score_session["type"] == "QUESTION") & (df_score_session["temps_total"] > 0)]
         col_duree_pedago, col_duree_court = st.columns(2)
         with col_duree_pedago:
@@ -236,6 +217,7 @@ with tab_general:
         .sort_values(["year", "month"])["periode"]
         .tolist()
     )
+    sous_titre('Utilisateurs et sessions par mois')
     fig = px.bar(
         df_users_chart,
         x="periode",
@@ -246,7 +228,6 @@ with tab_general:
             "type": ["Nouveaux utilisateurs", "Joueurs actifs", "Sessions"]
         },
         labels={"periode": "Période", "nb": "Nombre", "type": ""},
-        title="Utilisateurs et sessions par mois",
     )
     fig.update_xaxes(categoryorder="array", categoryarray=periodes_users)
     fig.update_traces(texttemplate="%{y}", textposition="outside")
@@ -258,13 +239,13 @@ with tab_reussite:
     col_t_objets, col_t_quiz = st.columns(2)
     with col_t_objets:
         # Top des questions les mieux réussies
-        st.subheader('Top des questions les mieux réussies')
+        sous_titre('Top des questions les mieux réussies')
         slider_best_top = st.slider("  ", min_value=3, max_value=len(df_reponse_question_top), value=5, step=1)
         df_reponse_question_top_b = df_reponse_question_top.sort_values("Réussite", ascending=False).head(slider_best_top)
         st.dataframe(style_reussite_table(df_reponse_question_top_b.set_index("Question")))
     with col_t_quiz:
         # Top des questions les moins bien réussies
-        st.subheader('Top des questions les moins bien réussies')
+        sous_titre('Top des questions les moins bien réussies')
         slider_worse_top = st.slider(" ", min_value=3, max_value=len(df_reponse_question_top), value=5, step=1)
         df_reponse_question_top_w = df_reponse_question_top.sort_values("Réussite", ascending=True).head(slider_worse_top)
         st.dataframe(style_reussite_table(df_reponse_question_top_w.set_index("Question")))
