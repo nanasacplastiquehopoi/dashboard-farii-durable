@@ -3,5 +3,3 @@ pandas
 plotly
 matplotlib
 supabase
-datetime
-math
