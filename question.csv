@@ -1,0 +1,47 @@
+id,nom_question,reponse,date_application,categorie,description
+ec149fb6-b02d-4c68-844d-c6db2bf2661c,Couverts en bois,true,0987-12-04,OBJET,Couverts en bois
+77ef799b-9ae0-4485-8778-fff40f77c3ed,Gobelet en bioplastique à usage unique,false,2025-01-07,OBJET,Gobelet en bioplastique à usage unique
+e0f09281-cef2-4749-8f29-67960a5fb416,Brique de jus avec une lamination intérieure en aluminium),true,0987-12-04,OBJET,Brique de jus avec une lamination intérieure en aluminium)
+19d01454-7025-4198-ac26-eceb698594b3,Fruits et légumes non transformés emballé dans du plastique sous vide,false,2027-01-01,OBJET,Fruits et légumes non transformés emballé dans du plastique sous vide
+cc3c0ecf-dca0-4d1d-9f3f-dc736a7d9bfc,Boîte de crème glacée en plastique,true,0987-12-04,OBJET,Boîte de crème glacée en plastique
+70d2edd4-545d-45ca-907f-08ad6126d609,Boîte de crème glacée en carton avec lamination intérieure en plastique,true,0987-12-04,OBJET,Boîte de crème glacée en carton avec lamination intérieure en plastique
+36219586-c29f-481b-9dcf-305e8fa50310,"Barquette pour pièce de boucherie, charcuterie, fromagerie, poissonnerie",true,0987-12-04,OBJET,"Barquette pour pièce de boucherie, charcuterie, fromagerie, poissonnerie"
+890be11a-453b-4730-8c4d-cba576cb032b,Gobelet en plastique compostable à usage unique,false,2025-01-07,OBJET,Gobelet en plastique compostable à usage unique
+e01f43f1-a528-4fdb-9063-67a63a0204e1,Barquette en carton,true,0987-12-04,OBJET,Barquette en carton
+d3e50174-29d3-4009-961f-433c840fc87e,Paille en papier,true,0987-12-04,OBJET,Paille en papier
+c9491a4d-d71d-40d7-bb4d-5418ef79f5d3,Barquette plastique pour fruits ou légumes découpés,false,2027-01-01,OBJET,Barquette plastique pour fruits ou légumes découpés
+94c9b74b-859a-469d-ba62-d16d87df6781,Barquette en carton avec lamination intérieure en plastique,false,2029-01-07,OBJET,Barquette en carton avec lamination intérieure en plastique
+3c488837-4b58-4d36-9a34-349e5afc5c61,Barquette en aluminium à usage unique,false,2026-01-07,OBJET,Barquette en aluminium à usage unique
+6b37381f-b8b6-4b8b-9bdf-92c0cb9f6e7b,Gobelet en bagasse,true,0987-12-04,OBJET,Gobelet en bagasse
+8d5a1622-58c4-4e75-b77d-c3c2975a3efe,Film alimentaire plastique étirable,false,2028-01-01,OBJET,Film alimentaire plastique étirable
+6454d0d3-8c6d-443b-a983-02cf50c53509,Sac de caisse isotherme,true,2022-01-01,OBJET,Sac de caisse isotherme
+002d0b1b-64f1-4653-a332-b28ddac6ad19,Sac de caisse en plastique léger,false,2020-01-09,OBJET,Sac de caisse en plastique léger
+f240c0a5-2124-4966-9762-033289571c50,Assiette en plastique à usage unique,false,2025-01-07,OBJET,Assiette en plastique à usage unique
+47a4d70e-e394-4819-a987-8eb43d6ad374,Barquette en plastique à usage unique,false,2026-01-07,OBJET,Barquette en plastique à usage unique
+6b85821a-d7f4-4680-8392-d6f73ba558d7,"Sac de caisse en plastique ""biodégradable""",false,2020-01-09,OBJET,"Sac de caisse en plastique ""biodégradable"""
+3f9ecd2e-6066-4934-a4a2-1358c7878be8,Pochette en papier craft,true,0987-12-04,OBJET,Pochette en papier craft
+46fb3e6e-6ad9-4ab9-80c8-f07eccb979c1,Sac poubelle,true,0987-12-04,OBJET,Sac poubelle
+292b0e68-6f65-4f30-8ae7-ad8cee622d2d,Sachet plastique pour fruits ou légumes non transformés,false,2027-01-01,OBJET,Sachet plastique pour fruits ou légumes non transformés
+02b43a34-34d6-42e1-8a58-f50531af7096,Couvercle de gobelet en plastique à usage unique,false,2025-01-07,OBJET,Couvercle de gobelet en plastique à usage unique
+3cef7826-2144-4315-a755-b8b647af2db2,Couvert en plastique à usage unique,false,2025-01-07,OBJET,Couvert en plastique à usage unique
+6972a8a3-31f4-4d13-ad58-03023a371164,Sac cabas en plastique réutilisable,true,0987-12-04,OBJET,Sac cabas en plastique réutilisable
+a7e66054-abf1-42d5-81de-06ab2f6028b3,Gobelet en carton avec rêvetement intérieur en plastique,true,2028-01-07,OBJET,Gobelet en carton avec rêvetement intérieur en plastique
+800a7f6a-d7c6-4d6a-a4de-e3c6ee1fb40d,Touillette en plastique à usage unique,false,2025-01-07,OBJET,Touillette en plastique à usage unique
+115c4d14-2418-4f67-84d5-fb1da619084a,Brique de soupe avec lamination intérieure en aluminium,true,0987-12-04,OBJET,Brique de soupe avec lamination intérieure en aluminium
+efe057f0-d104-4886-ad97-5b1f10c4abd2,Barquette en polystyrène à usage unique,false,2026-01-07,OBJET,Barquette en polystyrène à usage unique
+c38de1a1-0608-4267-babc-0616770c4511,"Sac de caisse en plastique ""compostable""",false,2020-01-09,OBJET,"Sac de caisse en plastique ""compostable"""
+00dcedbc-fa34-40a6-b02d-3a7d5f5f6bdf,bioaccumulation,true,0987-12-04,QUESTION,Qu'est-ce que la bioaccumulation ?
+3f83dd5c-4a66-495f-bff1-0530afdf9f35,bioacpreocc,true,0987-12-04,QUESTION,Pourquoi la bioaccumulation est-elle préoccupante ?
+f5428bc4-c5b6-4d75-9a7b-e4840f69e43d,dechetsLagon,true,0987-12-04,QUESTION,Les déchets abandonnés sur terre peuvent-ils finir dans le lagon ?
+ca040a8f-1588-4f6a-8e87-e71313f5ad6b,estimationPoisson,true,0987-12-04,QUESTION,"Selon certaines estimations, en quelle année pourrait-il y avoir plus de plastique que de poissons dans les océans (en poids) ?"
+6ad21e09-158a-40ea-ba23-ad3bd89d034a,gyres,true,0987-12-04,QUESTION,Que sont les gyres de plastique ?
+cb07c5a1-a84c-4d37-a7d9-d35886856d26,microplastiques,true,0987-12-04,QUESTION,Les microplastiques ont-ils déjà été retrouvés dans le corps humain ?
+5362c4ad-d4c3-457b-843b-aeec3a24fae2,Paille en plastique à usage unique,false,2025-01-07,OBJET,Paille en plastique à usage unique
+875fc744-4e7c-4130-a1f0-f28f56d7c59b,"Contenants alimentaires plastiques ou aluminium à usage unique ",false,2026-01-07,OBJET,"Contenants alimentaires plastiques ou aluminium à usage unique "
+175a18c8-e295-48df-a1de-e53e8c37e6be,Filet en nylon pour fruits ou légumes,false,2027-01-01,OBJET,Filet en nylon pour fruits ou légumes
+76d2d7af-5737-4431-b58f-9fa556f88679,"Pot de yaourt ",true,0987-12-04,OBJET,"Pot de yaourt "
+b0a82e5e-1fa4-4ddf-82b6-ce053173288a,Barquette en plastique avec date limite de consommation > J0,true,0987-12-04,OBJET,Barquette en plastique avec date limite de consommation > J0
+479e7a83-8408-4a35-a39b-4195ba5f38f5,Fruits ou légumes transformés emballés dans du plastique sous-vide,true,0987-12-04,OBJET,Fruits ou légumes transformés emballés dans du plastique sous-vide
+1025ed70-a395-42b8-bc08-40e2a45d12f8,Vaisselle réutilisable en restaurant,true,2026-01-01,OBJET,Vaisselle réutilisable en restaurant
+476a258f-a4c0-494b-b3c6-cbbe3c55199d,Barquette en bagasse,true,0987-12-04,OBJET,Barquette en bagasse
+c79cea28-0805-4754-94ee-48e1240cf0e9,Gobelet en plastique à usage unique,false,2025-01-07,OBJET,Gobelet en plastique à usage unique
