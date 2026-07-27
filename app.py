@@ -40,13 +40,6 @@ with st.sidebar:
         annee_courante = date.today().year
         annees = list(range(2026, annee_courante + 1))
 
-        with col_date1:
-            if mode == "Années":
-                annee_debut = st.selectbox("Année début", annees)
-                st.session_state.d_debut = date(annee_debut, 1, 1)
-            else:
-                st.session_state.d_debut = st.date_input("Date début", value=date(2026, 1, 1))
-
         with col_date2:
             if mode == "Années":
                 annee_fin = st.selectbox("Année fin", annees)
@@ -54,4 +47,15 @@ with st.sidebar:
             else:
                 st.session_state.d_fin = st.date_input("Date fin", value=date.today())
 
+        with col_date1:
+            if mode == "Années":
+                annee_debut = st.selectbox("Année début", annees)
+                st.session_state.d_debut = date(annee_debut, 1, 1)
+            else:
+                st.session_state.d_debut = st.date_input("Date début", value=date(2026, 1, 1))
+        t_exclure_juillet26 = st.toggle("Exclure Juillet 2026", value=False)
+        if t_exclure_juillet26:
+            st.session_state.d_debut = date(2026, 8, 1)
+        else:
+            st.session_state.d_debut = date(2026, 1, 1)
 pg.run()

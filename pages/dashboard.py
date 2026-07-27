@@ -17,7 +17,30 @@ def style_reussite_table(df):
         .text_gradient(cmap=REUSSITE_CMAP, vmin=0, vmax=100, axis=None)
     )
 
+def format_periode(df):
+    if df.empty:
+        df = df.copy()
+        df["periode"] = pd.Series(dtype="string")
+        return df
+    df = df.copy()
+    df["periode"] = df.apply(
+        lambda r: f"{MOIS[int(r['month']) - 1]}-{int(r['year'])}",
+        axis=1,
+    )
+    return df
+
+def afficher_camembert(df, names, values, **kwargs):
+    if df.empty or df[values].fillna(0).sum() == 0:
+        st.info("Aucune donnée sur cette période.")
+        return
+    st.plotly_chart(px.pie(df, names=names, values=values, **kwargs))
+
 def pivot_reussite_mensuelle(df, index_col, index_name=None):
+    if df.empty:
+        pivot = pd.DataFrame({"Tous": pd.Series(dtype=float)})
+        pivot.index.name = index_name or index_col
+        return pivot
+
     df_tous = df.groupby("periode", as_index=False).agg(
         is_correct=("is_correct", "sum"),
         count_tot=("count_tot", "sum"),
@@ -147,13 +170,20 @@ df_reponse_question = df_reponse_question[
     (df_reponse_question["created_at"].dt.date >= st.session_state.d_debut)
     & (df_reponse_question["created_at"].dt.date <= st.session_state.d_fin)
 ]
+donnees_periode_vides = (
+    df_profile.empty and df_score_session.empty and df_reponse_question.empty
+)
+if donnees_periode_vides:
+    st.info("Aucune donnée disponible pour la période sélectionnée.")
 # Top des questions les mieux réussies
 df_reponse_question_top = df_reponse_question.groupby("question_id").agg({"is_correct": "mean"}).reset_index()
-df_reponse_question_top = df_reponse_question_top.merge(df_question, left_on="question_id", right_on="id")[["description", "is_correct"]]
-df_reponse_question_top["is_correct"] = df_reponse_question_top["is_correct"] * 100
-df_reponse_question_top["is_correct"] = df_reponse_question_top["is_correct"].round(1)
-# df_reponse_question_top["is_correct"] = df_reponse_question_top["is_correct"].astype(str) + "%"
-df_reponse_question_top.columns = ["Question", "Réussite"]
+if not df_reponse_question_top.empty:
+    df_reponse_question_top = df_reponse_question_top.merge(df_question, left_on="question_id", right_on="id")[["description", "is_correct"]]
+    df_reponse_question_top["is_correct"] = df_reponse_question_top["is_correct"] * 100
+    df_reponse_question_top["is_correct"] = df_reponse_question_top["is_correct"].round(1)
+    df_reponse_question_top.columns = ["Question", "Réussite"]
+else:
+    df_reponse_question_top = pd.DataFrame(columns=["Question", "Réussite"])
 # --------------------------------------------------------------------
 # --------------------------------------------------------------------
 # --- Onglets ---
@@ -179,8 +209,7 @@ with tab_general:
         df_commune_count.columns = ["nom_commune", "count"]
         with st.container(border=True):
             sous_titre('Users par commune')
-            fig1 = px.pie(df_commune_count, names="nom_commune", values="count", hole=0.35)
-            st.plotly_chart(fig1)
+            afficher_camembert(df_commune_count, names="nom_commune", values="count", hole=0.35)
             # Type de sessions
             df_type_session = df_score_session["type"].value_counts()
             df_type_session = df_type_session.reset_index()
@@ -189,8 +218,7 @@ with tab_general:
             df_type_session.loc[df_type_session["type"] == "QUESTION", "type"] = "Quiz"
         with st.container(border=True):
             sous_titre('Type de sessions')
-            fig2 = px.pie(df_type_session, names="type", values="count", hole=0.35)
-            st.plotly_chart(fig2)
+            afficher_camembert(df_type_session, names="type", values="count", hole=0.35)
         # Type Objets
         # Durée moyenne de session (sous format XXminXXs )
         sous_titre('Type Objets')
@@ -225,8 +253,7 @@ with tab_general:
             len(df_score_session[df_score_session["a_fini"] == False])
             ]})
             sous_titre('Sessions terminées')
-            fig = px.pie(df_sessionterm, names="fini", values="values", hole=0.35)
-            st.plotly_chart(fig)
+            afficher_camembert(df_sessionterm, names="fini", values="values", hole=0.35)
         # Mode de sessions   
         with st.container(border=True):     
             df_mode_session = df_score_session["mode"].value_counts()
@@ -237,8 +264,13 @@ with tab_general:
             df_mode_session.loc[df_mode_session["mode"] == "CHRONO", "mode"] = "Chrono"
             df_mode_session.loc[df_mode_session["mode"] == "SPRINT", "mode"] = "Sprint"
             sous_titre('Modes de sessions')
-            fig2 = px.pie(df_mode_session, names="mode", values="count", hole=0.35, category_orders={"mode": ["Pédagogique (Long)", "Pédagogique (Court)", "Chrono", "Sprint"]})
-            st.plotly_chart(fig2, theme="streamlit")
+            afficher_camembert(
+                df_mode_session,
+                names="mode",
+                values="count",
+                hole=0.35,
+                category_orders={"mode": ["Pédagogique (Long)", "Pédagogique (Court)", "Chrono", "Sprint"]},
+            )
         # Type Quiz
         # Durée moyenne de session
         sous_titre('Type Quiz')
@@ -276,11 +308,7 @@ with tab_general:
         .rename(columns={"size": "nb"})
         .sort_values(["year", "month"])
     )
-    df_grouped["periode"] = (
-        df_grouped["month"].apply(lambda m: MOIS[m - 1])
-        + "-"
-        + df_grouped["year"].astype(str)
-    )
+    df_grouped = format_periode(df_grouped)
     df_grouped["type"] = "Nouveaux utilisateurs"
 
     df_session_c1 = df_score_session.copy()
@@ -293,11 +321,7 @@ with tab_general:
         .rename(columns={"profile_id": "nb"})
         .sort_values(["year", "month"])
     )
-    df_active_grouped["periode"] = (
-        df_active_grouped["month"].apply(lambda m: MOIS[m - 1])
-        + "-"
-        + df_active_grouped["year"].astype(str)
-    )
+    df_active_grouped = format_periode(df_active_grouped)
     df_active_grouped["type"] = "Joueurs actifs"
 
     df_session_grouped = (
@@ -306,11 +330,7 @@ with tab_general:
         .rename(columns={"size": "nb"})
         .sort_values(["year", "month"])
     )
-    df_session_grouped["periode"] = (
-        df_session_grouped["month"].apply(lambda m: MOIS[m - 1])
-        + "-"
-        + df_session_grouped["year"].astype(str)
-    )
+    df_session_grouped = format_periode(df_session_grouped)
     df_session_grouped["type"] = "Sessions"
 
     df_users_chart = pd.concat(
@@ -321,12 +341,6 @@ with tab_general:
         ],
         ignore_index=True,
     )
-    periodes_users = (
-        df_users_chart.drop_duplicates(["year", "month"])
-        .sort_values(["year", "month"])["periode"]
-        .tolist()
-    )
-    
     left, right = st.columns([25, 1], vertical_alignment="center")
     with left:
         sous_titre('Utilisateurs et sessions par mois')
@@ -335,37 +349,62 @@ with tab_general:
             st.markdown("__Nouveaux utilisateurs__ = Utilisateurs créés pendant la période")
             st.markdown("__Joueurs actifs__ =  Utilisateurs ayant effectué au moins une session pendant la période")
             st.markdown("__Sessions__ =  Nombre de sessions effectuées pendant la période")
-    fig = px.bar(
-        df_users_chart,
-        x="periode",
-        y="nb",
-        color="type",
-        barmode="group",
-        category_orders={
-            "type": ["Nouveaux utilisateurs", "Joueurs actifs", "Sessions"]
-        },
-        labels={"periode": "Période", "nb": "Nombre", "type": ""},
-    )
-    fig.update_xaxes(categoryorder="array", categoryarray=periodes_users)
-    fig.update_traces(texttemplate="%{y}", textposition="outside")
-    st.plotly_chart(fig, width="stretch")
+    if df_users_chart.empty:
+        st.info("Aucune activité enregistrée sur cette période.")
+    else:
+        periodes_users = (
+            df_users_chart.drop_duplicates(["year", "month"])
+            .sort_values(["year", "month"])["periode"]
+            .tolist()
+        )
+        fig = px.bar(
+            df_users_chart,
+            x="periode",
+            y="nb",
+            color="type",
+            barmode="group",
+            category_orders={
+                "type": ["Nouveaux utilisateurs", "Joueurs actifs", "Sessions"]
+            },
+            labels={"periode": "Période", "nb": "Nombre", "type": ""},
+        )
+        fig.update_xaxes(categoryorder="array", categoryarray=periodes_users)
+        fig.update_traces(texttemplate="%{y}", textposition="outside")
+        st.plotly_chart(fig, width="stretch")
 # --------------------------------------------------------------------
 # --------------------------------------------------------------------
 # --- Onglet Réussite ---
 with tab_reussite:
     col_t_objets, col_t_quiz = st.columns(2)
+    nb_questions_top = len(df_reponse_question_top)
     with col_t_objets:
-        # Top des questions les mieux réussies
         sous_titre('Top des questions les mieux réussies')
-        slider_best_top = st.slider("  ", min_value=3, max_value=len(df_reponse_question_top), value=5, step=1)
-        df_reponse_question_top_b = df_reponse_question_top.sort_values("Réussite", ascending=False).head(slider_best_top)
-        st.dataframe(style_reussite_table(df_reponse_question_top_b.set_index("Question")))
+        if nb_questions_top == 0:
+            st.info("Aucune réponse sur cette période.")
+        else:
+            slider_best_top = st.slider(
+                "  ",
+                min_value=min(3, nb_questions_top),
+                max_value=nb_questions_top,
+                value=min(5, nb_questions_top),
+                step=1,
+            )
+            df_reponse_question_top_b = df_reponse_question_top.sort_values("Réussite", ascending=False).head(slider_best_top)
+            st.dataframe(style_reussite_table(df_reponse_question_top_b.set_index("Question")))
     with col_t_quiz:
-        # Top des questions les moins bien réussies
         sous_titre('Top des questions les moins bien réussies')
-        slider_worse_top = st.slider(" ", min_value=3, max_value=len(df_reponse_question_top), value=5, step=1)
-        df_reponse_question_top_w = df_reponse_question_top.sort_values("Réussite", ascending=True).head(slider_worse_top)
-        st.dataframe(style_reussite_table(df_reponse_question_top_w.set_index("Question")))
+        if nb_questions_top == 0:
+            st.info("Aucune réponse sur cette période.")
+        else:
+            slider_worse_top = st.slider(
+                " ",
+                min_value=min(3, nb_questions_top),
+                max_value=nb_questions_top,
+                value=min(5, nb_questions_top),
+                step=1,
+            )
+            df_reponse_question_top_w = df_reponse_question_top.sort_values("Réussite", ascending=True).head(slider_worse_top)
+            st.dataframe(style_reussite_table(df_reponse_question_top_w.set_index("Question")))
 
 
     with st.container(horizontal_alignment="center"):
@@ -399,7 +438,10 @@ with tab_reussite:
         df_reponse_question_c1 = pivot_reussite_mensuelle(
             df_reponse_question_c1, index_col="Question", index_name="Question"
         )
-        st.dataframe(style_reussite_table(df_reponse_question_c1))
+        if df_reponse_question_c1.empty:
+            st.info("Aucune réponse sur cette période.")
+        else:
+            st.dataframe(style_reussite_table(df_reponse_question_c1))
 
         st.divider()
         sous_titre("% de réussite des communes par mois")
@@ -440,7 +482,10 @@ with tab_reussite:
         df_reponse_commune_c1 = pivot_reussite_mensuelle(
             df_reponse_commune_c1, index_col="nom_commune", index_name="Commune"
         )
-        st.dataframe(style_reussite_table(df_reponse_commune_c1))
+        if df_reponse_commune_c1.empty:
+            st.info("Aucune réponse sur cette période.")
+        else:
+            st.dataframe(style_reussite_table(df_reponse_commune_c1))
 # --------------------------------------------------------------------
 # --- Onglet Leaderboard ---
 with tab_leaderboard:
