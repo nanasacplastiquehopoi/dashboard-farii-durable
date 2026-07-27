@@ -161,10 +161,17 @@ df_reponse_question_top.columns = ["Question", "Réussite"]
 tab_general, tab_reussite, tab_leaderboard= st.tabs(["Général","% Réussites","Leaderboard"])
 with tab_general:
     # --- Affichage des metrics ---
+    with st.container(border=False):
+        kpi_users, kpi_sessions = st.columns(2)
+        with kpi_users:
+            with st.container(horizontal_alignment="center"):
+                st.metric("Users total", len(df_profile))
+        with kpi_sessions:
+            with st.container(horizontal_alignment="center"):
+                st.metric("Sessions total", len(df_score_session))
+
     col1, col2 = st.columns(2)
     with col1:
-        # Users total
-        st.metric("Users total", len(df_profile))
         # Utilisateurs par commune
         df_profile_commune = df_profile.merge(df_commune, left_on="commune_id", right_on="id")
         df_commune_count = df_profile_commune["nom_commune"].value_counts()
@@ -210,8 +217,6 @@ with tab_general:
                     st.write(f"{duree_moyenne // 60}min {duree_moyenne % 60 // 1}s")
 
     with col2:
-        # Sessions total
-        st.metric("Sessions total", len(df_score_session))
         # Sessions terminées
         with st.container(border=True):
             df_sessionterm = pd.DataFrame({
@@ -227,13 +232,13 @@ with tab_general:
             df_mode_session = df_score_session["mode"].value_counts()
             df_mode_session = df_mode_session.reset_index()
             df_mode_session.columns = ["mode", "count"]
-            df_mode_session.loc[df_mode_session["mode"] == "SERIE_P", "mode"] = "Pédagogique"
-            df_mode_session.loc[df_mode_session["mode"] == "SERIE_C", "mode"] = "Pédagogique"
+            df_mode_session.loc[df_mode_session["mode"] == "SERIE_P", "mode"] = "Pédagogique (Long)"
+            df_mode_session.loc[df_mode_session["mode"] == "SERIE_C", "mode"] = "Pédagogique (Court)"
             df_mode_session.loc[df_mode_session["mode"] == "CHRONO", "mode"] = "Chrono"
             df_mode_session.loc[df_mode_session["mode"] == "SPRINT", "mode"] = "Sprint"
             sous_titre('Modes de sessions')
-            fig2 = px.pie(df_mode_session, names="mode", values="count", hole=0.35)
-            st.plotly_chart(fig2)
+            fig2 = px.pie(df_mode_session, names="mode", values="count", hole=0.35, category_orders={"mode": ["Pédagogique (Long)", "Pédagogique (Court)", "Chrono", "Sprint"]})
+            st.plotly_chart(fig2, theme="streamlit")
         # Type Quiz
         # Durée moyenne de session
         sous_titre('Type Quiz')
