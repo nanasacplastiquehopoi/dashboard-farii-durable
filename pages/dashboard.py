@@ -165,7 +165,7 @@ with tab_general:
         kpi_users, kpi_sessions = st.columns(2)
         with kpi_users:
             with st.container(horizontal_alignment="center"):
-                st.metric("Users total", len(df_profile))
+                st.metric("Nouveaux users total", len(df_profile))
         with kpi_sessions:
             with st.container(horizontal_alignment="center"):
                 st.metric("Sessions total", len(df_score_session))
