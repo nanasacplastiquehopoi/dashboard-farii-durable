@@ -58,4 +58,8 @@ with st.sidebar:
             st.session_state.d_debut = date(2026, 8, 1)
         else:
             st.session_state.d_debut = date(2026, 1, 1)
+
+    st.divider()
+    st.caption("Tableau de bord par Jean-Charles Brunelle, pour Nana Sace Plastique Hopoi")
+
 pg.run()
